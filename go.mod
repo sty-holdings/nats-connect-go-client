@@ -4,8 +4,8 @@ go 1.22.3
 
 require (
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.49.2
-	github.com/sty-holdings/constant-type-vars-go/v2024 v2024.7.9
-	github.com/sty-holdings/sty-shared/v2024 v2024.14.6
+	github.com/sty-holdings/constant-type-vars-go/v2024 v2024.14.2
+	github.com/sty-holdings/sty-shared/v2024 v2024.17.8
 	golang.org/x/text v0.14.0
 )
 
@@ -37,6 +37,7 @@ require (
 	github.com/nats-io/nats.go v1.33.1 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/sty-holdings/nats-connect-shared v0.0.0-20240606172528-c11d71ca10ab // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 )

@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/hokaccha/go-prettyjson"
 	"github.com/integrii/flaggy"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -29,8 +28,8 @@ var (
 	configFileFQN  string
 	generateConfig bool
 	password       string
-	environment    = "production" // this is the default. For development, use 'development'.
-	programName    = "Ai2C-go-client"
+	environment    = "production" // this is the default. For development, use 'development' otherwise 'local'.
+	programName    = "nats-connect-go-client"
 	secretKey      string
 	tempDirectory  string
 	testingOn      bool
@@ -73,30 +72,30 @@ func init() {
 		&styhClientId,
 		"ci",
 		"clientId",
-		"The AI2 Connect assigned client id. You can find it here: https://production-nc-dashboard.web.app/.",
+		"The NATS Connect assigned client id. You can find it here: https://production-nc-dashboard.web.app/.",
 	)
 	flaggy.String(
 		&password,
 		"p",
 		"password",
-		"The password you selected when you signed up for AI2 connect services. This is encrypted using SSL and only exist in Cognito.",
+		"The password you selected when you signed up for NATS connect services. This is encrypted using SSL and only exist in Cognito.",
 	)
 	flaggy.String(
 		&secretKey,
 		"sk",
 		"secretKey",
-		"The AI2 Connect assigned secret key. This is encrypted using SSL and a new can be generated at https://production-nc-dashboard."+
+		"The NATS Connect assigned secret key. This is encrypted using SSL and a new can be generated at https://production-nc-dashboard."+
 			"web.app/.",
 	)
 	flaggy.String(
-		&tempDirectory, "tmp", "tempDir", "The temporary directory where the Ai2 Client can read and write temporary files.",
+		&tempDirectory, "tmp", "tempDir", "The temporary directory where the NATS Client can read and write temporary files.",
 	)
 	flaggy.Bool(&testingOn, "t", "testingOn", "This puts the program into testing mode.")
 	flaggy.String(
 		&username,
 		"u",
 		"username",
-		"The username you selected when you signed up for AI2 connect services. This is encrypted using SSL and only exist in Cognito.",
+		"The username you selected when you signed up for NATS connect services. This is encrypted using SSL and only exist in Cognito.",
 	)
 
 	// Set the version and parse all inputs into variables.
@@ -144,14 +143,13 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 
 	var (
 		clientPtr src.NCClient
-		data      src.NCPaymentInfo
 		errorInfo pi.ErrorInfo
-		reply     []byte
+		//reply     []byte
 	)
 
-	// The following is all the code the developer needs to use Ai2Connect.io
+	// The following is all the code the developer needs to use NATS Connect.
 
-	// Connect to the Ai2Connect service.
+	// Connect to the NATS Connect service.
 	if clientPtr, errorInfo = src.NewNCClient(
 		styhClientId,
 		environment,
@@ -165,12 +163,15 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 		flaggy.ShowHelpAndExit("")
 	}
 
-	if reply, errorInfo = clientPtr.AI2PaymentRequest(data); errorInfo.Error != nil {
-		pi.PrintErrorInfo(errorInfo)
-	} else {
-		fmt.Println("==============================")
-		fmt.Println("List available payment methods")
-		s, _ := prettyjson.Format(reply)
-		fmt.Println(string(s))
-	}
+	fmt.Println(clientPtr)
+
+	//// Sample call to Synadia Cloud List Teams
+	//if reply, errorInfo = clientPtr.SynaidaListTeams(data); errorInfo.Error != nil {
+	//	pi.PrintErrorInfo(errorInfo)
+	//} else {
+	//	fmt.Println("==============================")
+	//	fmt.Println("List available payment methods")
+	//	s, _ := prettyjson.Format(reply)
+	//	fmt.Println(string(s))
+	//}
 }

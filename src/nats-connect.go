@@ -44,7 +44,7 @@ import (
 //goland:noinspection ALL
 const (
 	PROGRAM_NAME            = "NATS-Connect-go-client"
-	NC_SSM_PARAMETER_PREFIX = "NC"
+	NC_SSM_PARAMETER_PREFIX = "nc"
 )
 
 type NCClient struct {
@@ -57,29 +57,10 @@ type NCClient struct {
 	tempDirectory      string
 }
 
-type NCPaymentInfo struct {
-	Amount                    float64  `json:"amount,omitempty"`
-	UseAutomaticPaymentMethod bool     `json:"use_automatic_payment_method,omitempty"`
-	CancellationReason        string   `json:"cancellation_reason,omitempty"`
-	CaptureFunds              string   `json:"capture_funds,omitempty"`
-	Currency                  string   `json:"currency,omitempty"`
-	CustomerId                string   `json:"customer_id,omitempty"`
-	Description               string   `json:"description,omitempty"`
-	ReturnRecordsLimit        int64    `json:"return_records_limit,omitempty"`
-	PaymentIntentId           string   `json:"id,omitempty"`
-	PaymentMethod             string   `json:"payment_method,omitempty"`
-	ReturnURL                 string   `json:"return_url,omitempty,omitempty"`
-	SenderEmailAddress        string   `json:"sender_email_address,omitempty"`
-	SenderName                string   `json:"sender_name,omitempty"`
-	StartingAfterRecord       string   `json:"starting_after_record,omitempty"`
-	ToEmailAddress            string   `json:"to_email_address,omitempty"`
-	ToEmailName               string   `json:"to_email_name,omitempty"`
-	Keys                      SaaSKeys `json:"keys,omitempty"`
-}
-
-type SaaSKeys struct {
-	StripeKey   string `json:"stripe_key"`
-	SendGridKey string `json:"sendgrid_key"`
+type SaaSKeysTokens struct {
+	SendGridKey  string `json:"sendgrid_key"`
+	StripeKey    string `json:"stripe_key"`
+	SynadiaToken string `json:"synadia_token"`
 }
 
 type styhCustomerConfig struct {
@@ -219,8 +200,6 @@ func NewNCClient(styhClientId, environment, password, secretKey, tempDirectory, 
 	return
 }
 
-// Private Function below here
-
 // processAWSClientParameters - handles getting and storing the shared AWS SSM Parameters.
 //
 //	Customer Messages: None
@@ -250,7 +229,6 @@ func processAWSClientParameters(
 		ctv.GetParameterName(NC_SSM_PARAMETER_PREFIX, environment, ctv.PARAMETER_TLS_PRIVATE_KEY),
 		ctv.GetParameterName(NC_SSM_PARAMETER_PREFIX, environment, ctv.PARAMETER_TLS_CA_BUNDLE),
 	); errorInfo.Error != nil {
-		pi.PrintErrorInfo(errorInfo)
 		return
 	}
 
@@ -278,12 +256,6 @@ func processAWSClientParameters(
 	return
 }
 
-// validateConfiguration - checks the values in the configuration file are valid. ValidateConfiguration doesn't
-// test if the configuration file exists, readable, or parsable.
-//
-//	Customer Messages: None
-//	Errors: ErrEnvironmentInvalid, ErrRequiredArgumentMissing
-//	Verifications: None
 func validateConfiguration(
 	styhClientId, environment, secretKey, tempDirectory, username string,
 	passwordPtr *string,
@@ -296,7 +268,7 @@ func validateConfiguration(
 		return
 	}
 	if hv.IsEnvironmentValid(environment) == false {
-		errorInfo = pi.NewErrorInfo(pi.ErrEnvironmentInvalid, fmt.Sprintf("%v%v", ctv.TXT_EVIRONMENT, ctv.FN_ENVIRONMENT))
+		errorInfo = pi.NewErrorInfo(pi.ErrEnvironmentInvalid, fmt.Sprintf("%v%v", ctv.TXT_ENVIRONMENT, ctv.FN_ENVIRONMENT))
 		return
 	}
 	if passwordPtr == nil {
