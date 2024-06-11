@@ -47,22 +47,6 @@ const (
 	NC_SSM_PARAMETER_PREFIX = "nc"
 )
 
-type NCClient struct {
-	awsSettings        awss.AWSSettings
-	environment        string
-	natsService        ns.NATSService
-	natsConfig         ns.NATSConfiguration
-	secretKey          string
-	styhCustomerConfig styhCustomerConfig
-	tempDirectory      string
-}
-
-type SaaSKeysTokens struct {
-	SendGridKey  string `json:"sendgrid_key"`
-	StripeKey    string `json:"stripe_key"`
-	SynadiaToken string `json:"synadia_token"`
-}
-
 type styhCustomerConfig struct {
 	clientId  string
 	secretKey string
@@ -70,6 +54,12 @@ type styhCustomerConfig struct {
 	username  string
 }
 
+// NewNCClient - creates an instance to connect to the NATS Connect server
+//
+//	Customer Messages: None
+//	Errors: ErrRequiredArgumentMissing, returned from validateConfiguration, LoadAWSCustomerSettings, Login, processAWSClientParameters, BuildTemporaryFiles,
+//	BuildTLSTemporaryFiles, BuildInstanceName, GetConnection
+//	Verifications: styhClientId, environment, password, secretKey, tempDirectory, username, configFileFQN
 func NewNCClient(styhClientId, environment, password, secretKey, tempDirectory, username, configFileFQN string) (
 	NCClientPtr NCClient,
 	errorInfo pi.ErrorInfo,
@@ -88,37 +78,13 @@ func NewNCClient(styhClientId, environment, password, secretKey, tempDirectory, 
 		tConfigMap = make(map[string]interface{})
 	)
 
+	// Load arguments
 	if configFileFQN == ctv.VAL_EMPTY {
-		if styhClientId == ctv.VAL_EMPTY {
-			errorInfo = pi.NewErrorInfo(pi.ErrRequiredArgumentMissing, fmt.Sprintf("%v%v", ctv.TXT_MISSING_PARAMETER, ctv.FN_CLIENT_ID))
-			return
-		} else {
-			tSTYHClientId = styhClientId
-		}
-		if password == ctv.VAL_EMPTY {
-			errorInfo = pi.NewErrorInfo(pi.ErrRequiredArgumentMissing, fmt.Sprintf("%v%v", ctv.TXT_MISSING_PARAMETER, ctv.FN_PASSWORD))
-			return
-		} else {
-			tPassword = password
-		}
-		if secretKey == ctv.VAL_EMPTY {
-			errorInfo = pi.NewErrorInfo(pi.ErrRequiredArgumentMissing, fmt.Sprintf("%v%v", ctv.TXT_MISSING_PARAMETER, ctv.FN_SECRET_KEY))
-			return
-		} else {
-			tSecretKey = secretKey
-		}
-		if tempDirectory == ctv.VAL_EMPTY {
-			errorInfo = pi.NewErrorInfo(pi.ErrRequiredArgumentMissing, fmt.Sprintf("%v%v", ctv.TXT_MISSING_PARAMETER, ctv.FN_TEMP_DIRECTORY))
-			return
-		} else {
-			tTempDirectory = tempDirectory
-		}
-		if username == ctv.VAL_EMPTY {
-			errorInfo = pi.NewErrorInfo(pi.ErrRequiredArgumentMissing, fmt.Sprintf("%v%v", ctv.TXT_MISSING_PARAMETER, ctv.FN_USERNAME))
-			return
-		} else {
-			tUsername = username
-		}
+		tSTYHClientId = styhClientId
+		tPassword = password
+		tSecretKey = secretKey
+		tTempDirectory = tempDirectory
+		tUsername = username
 		// environment is validated in awss.NewAWSConfig
 		tEnvironment = environment
 	} else {
@@ -159,11 +125,12 @@ func NewNCClient(styhClientId, environment, password, secretKey, tempDirectory, 
 
 	NCClientPtr.styhCustomerConfig.clientId = tSTYHClientId
 	NCClientPtr.styhCustomerConfig.username = tUsername
-	NCClientPtr.secretKey = tSecretKey
+	NCClientPtr.styhCustomerConfig.secretKey = tSecretKey
 	tPassword = ctv.TXT_PROTECTED  // Clear the password from memory.
 	secretKey = ctv.TXT_PROTECTED  // Clear the secret key from memory.
 	tSecretKey = ctv.TXT_PROTECTED // Clear the secret key from memory.
 
+	// Gets needed information to make connection
 	if errorInfo = processAWSClientParameters(
 		NCClientPtr.awsSettings,
 		NCClientPtr.styhCustomerConfig.tokens.ID,
@@ -174,12 +141,14 @@ func NewNCClient(styhClientId, environment, password, secretKey, tempDirectory, 
 		return
 	}
 
+	// Creates needed file for NATS
 	if errorInfo = ns.BuildTemporaryFiles(NCClientPtr.tempDirectory, NCClientPtr.natsConfig); errorInfo.Error != nil {
 		pi.PrintErrorInfo(errorInfo)
 		return
 	}
 	NCClientPtr.natsConfig.NATSCredentialsFilename = fmt.Sprintf("%v/%v", tTempDirectory, ns.CREDENTIAL_FILENAME)
 
+	// Creates needed file for NATS
 	if errorInfo = jwts.BuildTLSTemporaryFiles(NCClientPtr.tempDirectory, NCClientPtr.natsConfig.NATSTLSInfo); errorInfo.Error != nil {
 		pi.PrintErrorInfo(errorInfo)
 		return
@@ -188,10 +157,12 @@ func NewNCClient(styhClientId, environment, password, secretKey, tempDirectory, 
 	NCClientPtr.natsConfig.NATSTLSInfo.TLSCertFQN = fmt.Sprintf("%v/%v", tTempDirectory, jwts.TLS_CERT_FILENAME)
 	NCClientPtr.natsConfig.NATSTLSInfo.TLSPrivateKeyFQN = fmt.Sprintf("%v/%v", tTempDirectory, jwts.TLS_PRIVATE_KEY_FILENAME)
 
+	// Builds name for tracking
 	if NCClientPtr.natsService.InstanceName, errorInfo = ns.BuildInstanceName(ns.METHOD_DASHES, NCClientPtr.styhCustomerConfig.clientId); errorInfo.Error != nil {
 		pi.PrintErrorInfo(errorInfo)
 		return
 	}
+	// Makes connection to the STYH NATS Server
 	if NCClientPtr.natsService.ConnPtr, errorInfo = ns.GetConnection(NCClientPtr.natsService.InstanceName, NCClientPtr.natsConfig); errorInfo.Error != nil {
 		pi.PrintErrorInfo(errorInfo)
 		return
@@ -256,6 +227,11 @@ func processAWSClientParameters(
 	return
 }
 
+// validateConfiguration - Checks inputs are provided.
+//
+//	Customer Messages: None
+//	Errors: ErrRequiredArgumentMissing, ErrEnvironmentInvalid
+//	Verifications: None
 func validateConfiguration(
 	styhClientId, environment, secretKey, tempDirectory, username string,
 	passwordPtr *string,

@@ -7,12 +7,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/hokaccha/go-prettyjson"
 	"github.com/integrii/flaggy"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
 	ctv "github.com/sty-holdings/constant-type-vars-go/v2024"
 	"github.com/sty-holdings/nats-connect-go-client/src"
+	ncs "github.com/sty-holdings/nats-connect-shared"
 	config "github.com/sty-holdings/sty-shared/v2024/configuration"
 	pi "github.com/sty-holdings/sty-shared/v2024/programInfo"
 )
@@ -144,7 +146,7 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 	var (
 		clientPtr src.NCClient
 		errorInfo pi.ErrorInfo
-		//reply     []byte
+		reply     []byte
 	)
 
 	// The following is all the code the developer needs to use NATS Connect.
@@ -163,15 +165,17 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 		flaggy.ShowHelpAndExit("")
 	}
 
-	fmt.Println(clientPtr)
-
-	//// Sample call to Synadia Cloud List Teams
-	//if reply, errorInfo = clientPtr.SynaidaListTeams(data); errorInfo.Error != nil {
-	//	pi.PrintErrorInfo(errorInfo)
-	//} else {
-	//	fmt.Println("==============================")
-	//	fmt.Println("List available payment methods")
-	//	s, _ := prettyjson.Format(reply)
-	//	fmt.Println(string(s))
-	//}
+	// Sample call to Synadia Cloud List Teams
+	data := ncs.ListTeamsRequest{
+		SaaSKey: "uat_HbusMDRgIc7bUK3cJDBP4AQdJLWOM45mj8R8sH4nfpVVFl0YTRQFXOcLcsjAcNow",
+		BaseURL: "https://cloud.synadia.com",
+	}
+	if reply, errorInfo = clientPtr.SynaidaListTeams(data); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List Teams")
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
 }
