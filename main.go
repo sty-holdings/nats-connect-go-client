@@ -3,6 +3,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -14,13 +15,15 @@ import (
 
 	ctv "github.com/sty-holdings/constant-type-vars-go/v2024"
 	"github.com/sty-holdings/nats-connect-go-client/src"
-	ncs "github.com/sty-holdings/nats-connect-shared"
+	ncs "github.com/sty-holdings/nats-connect-shared/v2024"
 	config "github.com/sty-holdings/sty-shared/v2024/configuration"
 	pi "github.com/sty-holdings/sty-shared/v2024/programInfo"
 )
 
+//goland:noinspection ALL
 const (
-// Add Constants to the constants.go file
+	SYNADIA_CLOUD_TOKEN    = "uat_HbusMDRgIc7bUK3cJDBP4AQdJLWOM45mj8R8sH4nfpVVFl0YTRQFXOcLcsjAcNow"
+	SYNADIA_CLOUD_BASE_URL = "https://cloud.synadia.com"
 )
 
 // Add types to the types.go file
@@ -144,9 +147,13 @@ func main() {
 func run(styhClientId, environment, password, secretKey, tempDirectory, username, configFileFQN string) {
 
 	var (
-		clientPtr src.NCClient
-		errorInfo pi.ErrorInfo
-		reply     []byte
+		clientPtr   src.NCClient
+		errorInfo   pi.ErrorInfo
+		reply       []byte
+		replyData   interface{}
+		requestData interface{}
+		systemId    string
+		teamId      string
 	)
 
 	// The following is all the code the developer needs to use NATS Connect.
@@ -166,16 +173,209 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 	}
 
 	// Sample call to Synadia Cloud List Teams
-	data := ncs.ListTeamsRequest{
-		SaaSKey: "uat_HbusMDRgIc7bUK3cJDBP4AQdJLWOM45mj8R8sH4nfpVVFl0YTRQFXOcLcsjAcNow",
-		BaseURL: "https://cloud.synadia.com",
+	requestData = ncs.ListTeamsRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
 	}
-	if reply, errorInfo = clientPtr.SynaidaListTeams(data); errorInfo.Error != nil {
+	if replyData, errorInfo = clientPtr.SynaidaListTeams(requestData); errorInfo.Error != nil {
 		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
 	} else {
+		teamId = replyData.(ncs.ListTeamsReply).Response.Items[0].Id
 		fmt.Println("==============================")
 		fmt.Println("Synadia List Teams")
+		reply, _ = json.Marshal(replyData)
 		s, _ := prettyjson.Format(reply)
 		fmt.Println(string(s))
 	}
+
+	// Sample call to Synadia Cloud Get Team
+	requestData = ncs.GetTeamRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TeamId:  teamId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaGetTeam(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia Get Team")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud Get Team Limits
+	requestData = ncs.GetTeamLimitsRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TeamId:  teamId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaGetTeamLimits(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia Get Team's Limits")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List Information App Users Team
+	requestData = ncs.ListInfoAppUserTeamRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TeamId:  teamId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListInfoAppUsersTeam(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List Information App Users Team")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List Personal Access Tokens
+	requestData = ncs.ListPersonalAccessTokensRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TeamId:  teamId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListPersonalAccessTokens(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List Personal Access Tokens")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List Team Server Accounts
+	requestData = ncs.ListTeamServerAccountsRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TeamId:  teamId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListTeamServerAccounts(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List Team Server Accounts")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List Systems
+	requestData = ncs.ListSystemsRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TeamId:  teamId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListSystems(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		systemId = replyData.(ncs.ListSystemsReply).Response.Items[0].Id
+		fmt.Println("==============================")
+		fmt.Println("Synadia List Systems")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud Get System
+	requestData = ncs.GetSystemRequest{
+		SaaSKey:  SYNADIA_CLOUD_TOKEN,
+		BaseURL:  SYNADIA_CLOUD_BASE_URL,
+		SystemId: systemId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaGetSystem(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia Get System")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud Get System Limits
+	requestData = ncs.GetSystemLimitsRequest{
+		SaaSKey:  SYNADIA_CLOUD_TOKEN,
+		BaseURL:  SYNADIA_CLOUD_BASE_URL,
+		SystemId: systemId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaGetSystemLimits(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia Get System Limits")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List Team Server Accounts
+	requestData = ncs.ListSystemAccountInfoRequest{
+		SaaSKey:  SYNADIA_CLOUD_TOKEN,
+		BaseURL:  SYNADIA_CLOUD_BASE_URL,
+		SystemId: systemId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListSystemAccountInfo(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List System Account Info")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List Accounts
+	requestData = ncs.ListAccountsRequest{
+		SaaSKey:  SYNADIA_CLOUD_TOKEN,
+		BaseURL:  SYNADIA_CLOUD_BASE_URL,
+		SystemId: systemId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListAccounts(requestData.(ncs.ListAccountsRequest)); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List Accounts")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List System Server Info
+	var data []byte
+	requestData = ncs.ListSystemServerInfoRequest{
+		SaaSKey:  SYNADIA_CLOUD_TOKEN,
+		BaseURL:  SYNADIA_CLOUD_BASE_URL,
+		SystemId: systemId,
+	}
+	if data, errorInfo = clientPtr.SynaidaListSystemServerInfo(requestData.(ncs.ListSystemServerInfoRequest)); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List System Server Info")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(data)
+		fmt.Println(string(s))
+	}
+
 }
