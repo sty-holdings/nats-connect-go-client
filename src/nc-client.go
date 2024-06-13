@@ -56,23 +56,34 @@ type SaaSKeysTokens struct {
 	SynadiaToken string `json:"synadia_token"`
 }
 
-func (clientPtr *NCClient) SynaidaGetPersonalAccessToken(request ncs.GetPersonalAccessTokenRequest) (reply []byte, errorInfo pi.ErrorInfo) {
+// SynaidaGetPersonalAccessToken - will provide information about your token
+func (clientPtr *NCClient) SynaidaGetPersonalAccessToken(request interface{}) (reply ncs.GetPersonalAccessTokenReply, errorInfo pi.ErrorInfo) {
 
 	var (
 		tReply *nats.Msg
 	)
 
-	tReply, errorInfo = getPersonalAccessToken(
-		clientPtr.styhCustomerConfig.clientId, clientPtr.styhCustomerConfig.secretKey, clientPtr.styhCustomerConfig.username, clientPtr.natsService.InstanceName, request,
+	if tReply, errorInfo = getPersonalAccessToken(
+		clientPtr.styhCustomerConfig.clientId,
+		clientPtr.styhCustomerConfig.secretKey,
+		clientPtr.styhCustomerConfig.username,
+		clientPtr.natsService.InstanceName,
+		request.(ncs.GetPersonalAccessTokenRequest),
 		clientPtr.natsService.ConnPtr,
-	)
+	); errorInfo.Error != nil {
+		errorInfo = pi.NewErrorInfo(errorInfo.Error, ctv.VAL_EMPTY)
+		return
+	}
 
-	reply = tReply.Data
+	if errorInfo.Error = json.Unmarshal(tReply.Data, &reply); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+	}
 
 	return
 }
 
-func (clientPtr *NCClient) SynaidaGetSystem(request interface{}) (reply ncs.GetSystemRequest, errorInfo pi.ErrorInfo) {
+// SynaidaGetSystem - will provide information about the system
+func (clientPtr *NCClient) SynaidaGetSystem(request interface{}) (reply ncs.GetSystemReply, errorInfo pi.ErrorInfo) {
 
 	var (
 		tReply *nats.Msg
@@ -97,6 +108,7 @@ func (clientPtr *NCClient) SynaidaGetSystem(request interface{}) (reply ncs.GetS
 	return
 }
 
+// SynaidaGetSystemLimits - will provide information about the system limits
 func (clientPtr *NCClient) SynaidaGetSystemLimits(request interface{}) (reply ncs.GetSystemLimitsReply, errorInfo pi.ErrorInfo) {
 
 	var (
@@ -175,34 +187,53 @@ func (clientPtr *NCClient) SynaidaGetTeamLimits(request interface{}) (reply ncs.
 }
 
 // SynaidaGetVersion - will provide the version information
-func (clientPtr *NCClient) SynaidaGetVersion(request ncs.GetVersionRequest) (reply []byte, errorInfo pi.ErrorInfo) {
+func (clientPtr *NCClient) SynaidaGetVersion(request interface{}) (reply ncs.GetVersionReply, errorInfo pi.ErrorInfo) {
 
 	var (
 		tReply *nats.Msg
 	)
 
-	tReply, errorInfo = getVersion(
-		clientPtr.styhCustomerConfig.clientId, clientPtr.styhCustomerConfig.secretKey, clientPtr.styhCustomerConfig.username, clientPtr.natsService.InstanceName, request,
+	if tReply, errorInfo = getVersion(
+		clientPtr.styhCustomerConfig.clientId,
+		clientPtr.styhCustomerConfig.secretKey,
+		clientPtr.styhCustomerConfig.username,
+		clientPtr.natsService.InstanceName,
+		request.(ncs.GetVersionRequest),
 		clientPtr.natsService.ConnPtr,
-	)
+	); errorInfo.Error != nil {
+		errorInfo = pi.NewErrorInfo(errorInfo.Error, ctv.VAL_EMPTY)
+		return
+	}
 
-	reply = tReply.Data
+	if errorInfo.Error = json.Unmarshal(tReply.Data, &reply); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+	}
 
 	return
 }
 
-func (clientPtr *NCClient) SynaidaListAccounts(request ncs.ListAccountsRequest) (reply []byte, errorInfo pi.ErrorInfo) {
+// SynaidaListAccounts - will list the account for a system id
+func (clientPtr *NCClient) SynaidaListAccounts(request interface{}) (reply ncs.ListAccountsReply, errorInfo pi.ErrorInfo) {
 
 	var (
 		tReply *nats.Msg
 	)
 
-	tReply, errorInfo = listAccounts(
-		clientPtr.styhCustomerConfig.clientId, clientPtr.styhCustomerConfig.secretKey, clientPtr.styhCustomerConfig.username, clientPtr.natsService.InstanceName, request,
+	if tReply, errorInfo = listAccounts(
+		clientPtr.styhCustomerConfig.clientId,
+		clientPtr.styhCustomerConfig.secretKey,
+		clientPtr.styhCustomerConfig.username,
+		clientPtr.natsService.InstanceName,
+		request.(ncs.ListAccountsRequest),
 		clientPtr.natsService.ConnPtr,
-	)
+	); errorInfo.Error != nil {
+		errorInfo = pi.NewErrorInfo(errorInfo.Error, ctv.VAL_EMPTY)
+		return
+	}
 
-	reply = tReply.Data
+	if errorInfo.Error = json.Unmarshal(tReply.Data, &reply); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+	}
 
 	return
 }
@@ -233,22 +264,29 @@ func (clientPtr *NCClient) SynaidaListInfoAppUsersTeam(request interface{}) (rep
 	return
 }
 
-func (clientPtr *NCClient) SynaidaListNATSUsers(request ncs.ListNATSUsersRequest) (reply []byte, errorInfo pi.ErrorInfo) {
+func (clientPtr *NCClient) SynaidaListNATSUsers(request interface{}) (reply ncs.ListNATSUsersReply, errorInfo pi.ErrorInfo) {
 
 	var (
 		tReply *nats.Msg
 	)
 
-	tReply, errorInfo = listNATSUsers(
-		clientPtr.styhCustomerConfig.clientId, clientPtr.styhCustomerConfig.secretKey, clientPtr.styhCustomerConfig.username, clientPtr.natsService.InstanceName, request,
+	if tReply, errorInfo = listNATSUsers(
+		clientPtr.styhCustomerConfig.clientId, clientPtr.styhCustomerConfig.secretKey, clientPtr.styhCustomerConfig.username, clientPtr.natsService.InstanceName,
+		request.(ncs.ListNATSUsersRequest),
 		clientPtr.natsService.ConnPtr,
-	)
+	); errorInfo.Error != nil {
+		errorInfo = pi.NewErrorInfo(errorInfo.Error, ctv.VAL_EMPTY)
+		return
+	}
 
-	reply = tReply.Data
+	if errorInfo.Error = json.Unmarshal(tReply.Data, &reply); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+	}
 
 	return
 }
 
+// SynaidaListPersonalAccessTokens - will list your personal access tokens
 func (clientPtr *NCClient) SynaidaListPersonalAccessTokens(request interface{}) (reply ncs.ListPersonalAccessTokensReply, errorInfo pi.ErrorInfo) {
 
 	var (
@@ -274,6 +312,7 @@ func (clientPtr *NCClient) SynaidaListPersonalAccessTokens(request interface{}) 
 	return
 }
 
+// SynaidaListSystems - will list systems for a team
 func (clientPtr *NCClient) SynaidaListSystems(request interface{}) (reply ncs.ListSystemsReply, errorInfo pi.ErrorInfo) {
 
 	var (
@@ -299,6 +338,7 @@ func (clientPtr *NCClient) SynaidaListSystems(request interface{}) (reply ncs.Li
 	return
 }
 
+// SynaidaListSystemAccountInfo - will list system account info
 func (clientPtr *NCClient) SynaidaListSystemAccountInfo(request interface{}) (reply ncs.ListSystemAccountInfoReply, errorInfo pi.ErrorInfo) {
 
 	var (
@@ -324,18 +364,27 @@ func (clientPtr *NCClient) SynaidaListSystemAccountInfo(request interface{}) (re
 	return
 }
 
-func (clientPtr *NCClient) SynaidaListSystemServerInfo(request ncs.ListSystemServerInfoRequest) (reply []byte, errorInfo pi.ErrorInfo) {
+func (clientPtr *NCClient) SynaidaListSystemServerInfo(request interface{}) (reply ncs.ListSystemServerInfoReply, errorInfo pi.ErrorInfo) {
 
 	var (
 		tReply *nats.Msg
 	)
 
-	tReply, errorInfo = listSystemServerInfo(
-		clientPtr.styhCustomerConfig.clientId, clientPtr.styhCustomerConfig.secretKey, clientPtr.styhCustomerConfig.username, clientPtr.natsService.InstanceName, request,
+	if tReply, errorInfo = listSystemServerInfo(
+		clientPtr.styhCustomerConfig.clientId,
+		clientPtr.styhCustomerConfig.secretKey,
+		clientPtr.styhCustomerConfig.username,
+		clientPtr.natsService.InstanceName,
+		request.(ncs.ListSystemServerInfoRequest),
 		clientPtr.natsService.ConnPtr,
-	)
+	); errorInfo.Error != nil {
+		errorInfo = pi.NewErrorInfo(errorInfo.Error, ctv.VAL_EMPTY)
+		return
+	}
 
-	reply = tReply.Data
+	if errorInfo.Error = json.Unmarshal(tReply.Data, &reply); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+	}
 
 	return
 }

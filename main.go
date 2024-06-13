@@ -147,6 +147,7 @@ func main() {
 func run(styhClientId, environment, password, secretKey, tempDirectory, username, configFileFQN string) {
 
 	var (
+		accountId   string
 		clientPtr   src.NCClient
 		errorInfo   pi.ErrorInfo
 		reply       []byte
@@ -154,6 +155,7 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 		requestData interface{}
 		systemId    string
 		teamId      string
+		tokenId     string
 	)
 
 	// The following is all the code the developer needs to use NATS Connect.
@@ -250,6 +252,7 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 		pi.PrintErrorInfo(errorInfo)
 		log.Fatalln()
 	} else {
+		tokenId = replyData.(ncs.ListPersonalAccessTokensReply).Response.Items[0].Id
 		fmt.Println("==============================")
 		fmt.Println("Synadia List Personal Access Tokens")
 		reply, _ = json.Marshal(replyData)
@@ -353,6 +356,7 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 		pi.PrintErrorInfo(errorInfo)
 		log.Fatalln()
 	} else {
+		accountId = replyData.(ncs.ListAccountsReply).Response.Items[0].Id
 		fmt.Println("==============================")
 		fmt.Println("Synadia List Accounts")
 		reply, _ = json.Marshal(replyData)
@@ -361,20 +365,69 @@ func run(styhClientId, environment, password, secretKey, tempDirectory, username
 	}
 
 	// Sample call to Synadia Cloud List System Server Info
-	var data []byte
 	requestData = ncs.ListSystemServerInfoRequest{
 		SaaSKey:  SYNADIA_CLOUD_TOKEN,
 		BaseURL:  SYNADIA_CLOUD_BASE_URL,
 		SystemId: systemId,
 	}
-	if data, errorInfo = clientPtr.SynaidaListSystemServerInfo(requestData.(ncs.ListSystemServerInfoRequest)); errorInfo.Error != nil {
+	if replyData, errorInfo = clientPtr.SynaidaListSystemServerInfo(requestData); errorInfo.Error != nil {
 		pi.PrintErrorInfo(errorInfo)
 		log.Fatalln()
 	} else {
 		fmt.Println("==============================")
 		fmt.Println("Synadia List System Server Info")
 		reply, _ = json.Marshal(replyData)
-		s, _ := prettyjson.Format(data)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud Get Version
+	requestData = ncs.GetVersionRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaGetVersion(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia Get Version")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud List NATS Users
+	requestData = ncs.ListNATSUsersRequest{
+		SaaSKey:   SYNADIA_CLOUD_TOKEN,
+		BaseURL:   SYNADIA_CLOUD_BASE_URL,
+		AccountId: accountId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaListNATSUsers(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia List NATS Users")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
+		fmt.Println(string(s))
+	}
+
+	// Sample call to Synadia Cloud Get Personal Access Token
+	requestData = ncs.GetPersonalAccessTokenRequest{
+		SaaSKey: SYNADIA_CLOUD_TOKEN,
+		BaseURL: SYNADIA_CLOUD_BASE_URL,
+		TokenId: tokenId,
+	}
+	if replyData, errorInfo = clientPtr.SynaidaGetPersonalAccessToken(requestData); errorInfo.Error != nil {
+		pi.PrintErrorInfo(errorInfo)
+		log.Fatalln()
+	} else {
+		fmt.Println("==============================")
+		fmt.Println("Synadia Get Personal Access Token")
+		reply, _ = json.Marshal(replyData)
+		s, _ := prettyjson.Format(reply)
 		fmt.Println(string(s))
 	}
 

@@ -63,6 +63,14 @@ github.com/sty-holdings/constant-type-vars-go/v2024 v2024.14.2 h1:hSABqGDiQzrcme
 github.com/sty-holdings/constant-type-vars-go/v2024 v2024.14.2/go.mod h1:+2gv9FAljEUY01zhDnycbUcgP6C/q14iMuByDCUnrRY=
 github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.18 h1:fEM38kCcGeSTTvzrEp/7ePEaWm7QUtAqBuZHS11NoFY=
 github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.18/go.mod h1:Wc3DwX6GDdEj0uPJQwuVuL0Disi61kNfxlug2+rNEpQ=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.19 h1:nYTcFxwaS5Ow/WAY2CU3L2IbCw/0oVEQiYhLEVJsHtc=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.19/go.mod h1:Wc3DwX6GDdEj0uPJQwuVuL0Disi61kNfxlug2+rNEpQ=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.20 h1:if5wdSIw0+wg5DIm2UuRZtxF7s5qeT4c7h1DAX5ebFA=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.20/go.mod h1:Wc3DwX6GDdEj0uPJQwuVuL0Disi61kNfxlug2+rNEpQ=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.21 h1:SOLZ0Ia9C67F7MH4tOxcpTgv4oMdBj8Y/Wc4ZiZNgSE=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.21/go.mod h1:Wc3DwX6GDdEj0uPJQwuVuL0Disi61kNfxlug2+rNEpQ=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.22 h1:Ttw1MI1hAJihuVw/5WqB/zPi2uw5rPFvOxuupHIcEtE=
+github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.22/go.mod h1:Wc3DwX6GDdEj0uPJQwuVuL0Disi61kNfxlug2+rNEpQ=
 github.com/sty-holdings/sty-shared/v2024 v2024.17.8 h1:Iuy7PEeA7ibCNW6VwmCoD2OkQErFahq8YqRyt9OXxtU=
 github.com/sty-holdings/sty-shared/v2024 v2024.17.8/go.mod h1:p87aHV2vEf21mK8mTXey1qOiPxG1Pi+SLhYY9OlILh0=
 golang.org/x/crypto v0.21.0 h1:X31++rzVUdKhX5sWmSOFZxx8UW/ldWx55cbf08iNAMA=

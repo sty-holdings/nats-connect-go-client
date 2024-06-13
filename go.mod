@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.49.2
 	github.com/nats-io/nats.go v1.33.1
 	github.com/sty-holdings/constant-type-vars-go/v2024 v2024.14.2
-	github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.18
+	github.com/sty-holdings/nats-connect-shared/v2024 v2024.1.22
 	github.com/sty-holdings/sty-shared/v2024 v2024.17.8
 	golang.org/x/text v0.14.0
 )
